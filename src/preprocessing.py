@@ -1,5 +1,8 @@
 import pandas as pd 
 
+def bag_of_words(text):
+    return Counter(text.split())
+
 def read_data(filename, instance='text', label='airline_sentiment'):
     df = pd.read_csv(filename)
     labels = df[label].values
@@ -8,4 +11,5 @@ def read_data(filename, instance='text', label='airline_sentiment'):
 
 instances, labels = read_data('../data/Tweets.csv')
 for i in range(10):
-    print(instances[i], labels[i])
+    counts = bag_of_words(instances[i])
+    print(instances[i], counts, labels[i])
