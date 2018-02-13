@@ -1,4 +1,5 @@
 from collections import Counter, defaultdict
+from math import log
 
 def get_vocabulary(texts):
     vocab = set()
@@ -24,3 +25,21 @@ def estimate_prob_words_given_label(texts, labels, label, smoothing, vocab):
         word_count = label_word_counts[word]
         conditional_probs[word] = log((word_count + smoothing) / label_count)
     return conditional_probs
+
+def estimate_weights(texts, labels, smoothing):
+    weights = defaultdict(lambda: defaultdict(float))
+
+    label_set = set(labels)
+    label_counts = Counter(labels)
+
+    vocab = get_vocabulary(texts)
+
+    for label in label_set:
+        prob_words_given_label = estimate_prob_words_given_label(
+            texts, labels, label, smoothing, vocab
+        )
+        for word in prob_words_given_label:
+            weights[label][word] = prob_words_given_label[word]
+        # TODO may add offset
+        # weights[label]["**OFFSET**"] = label_counts[label] / len(labels)
+    return weights
