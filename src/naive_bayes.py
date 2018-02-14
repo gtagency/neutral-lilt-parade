@@ -28,7 +28,7 @@ def estimate_prob_words_given_label(texts, labels, label, smoothing, vocab):
     label_count = sum(label_word_counts.values()) + len(vocab) * smoothing
     for word in vocab:
         word_count = label_word_counts[word]
-        conditional_probs[word] = log((word_count + smoothing) / label_count)
+        conditional_probs[word] = (word_count + smoothing) / label_count
     return conditional_probs
 
 
@@ -65,7 +65,7 @@ def find_best_smoother(texts_true, labels_true,
 
 def run_test():
     instances, labels = read_data('../data/Tweets.csv')
-    weights = estimate_weights(instances, labels, 0.0001)
+    weights = estimate_weights(instances, labels, 0.01)
     predictions = predict_all(list(map(bag_of_words, instances)),
                               weights, list(set(labels)))
     prediction_labels = [p[0] for p in predictions]
