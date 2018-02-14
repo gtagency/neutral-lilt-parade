@@ -5,13 +5,15 @@ from sklearn.metrics import accuracy_score
 from preprocessing import read_data, bag_of_words, sanitize, bag_of_words_all
 
 
-def get_vocabulary(texts):
+# Gets the set of all words which appear in a collection of BOWs
+def get_vocabulary(bows):
     vocab = set()
-    for text in texts:
+    for text in bows:
         vocab.update(text)
     return vocab
 
 
+# Gets the amount of times each word shows up paired with a given label
 def get_label_word_counts(bows, labels, label):
     counter = Counter()
     for x, y in zip(bows, labels):
@@ -20,6 +22,8 @@ def get_label_word_counts(bows, labels, label):
     return defaultdict(float, counter)
 
 
+# Gets the probabilities of each word given a particular label, taking into
+# account smoothing
 def estimate_prob_words_given_label(bows, labels, label, smoothing, vocab):
     # P(w | L) = P(w AND L) / P(L)
     conditional_probs = defaultdict(float)
@@ -32,6 +36,8 @@ def estimate_prob_words_given_label(bows, labels, label, smoothing, vocab):
     return conditional_probs
 
 
+# Estimates the weights as the probability of each word appearing given a label
+# for all label pairs
 def estimate_weights(bows, labels, smoothing):
     weights = defaultdict(lambda: defaultdict(float))
 
@@ -46,23 +52,24 @@ def estimate_weights(bows, labels, smoothing):
         )
         for word in prob_words_given_label:
             weights[label][word] = prob_words_given_label[word]
-        # TODO may add offset
-        # weights[label]["**OFFSET**"] = label_counts[label] / len(labels)
     return weights
 
 
-def find_best_smoother(texts_true, labels_true,
-                       texts_val, labels_val,
+# Finds the best smoothing value given a list of candidates and a
+# training/validation set
+def find_best_smoother(texts_train, labels_train, texts_val, labels_val,
                        smoothers):
     scores = {}
-    label_set = set(labels_true).union(set(labels_val))
+    label_set = set(labels_train).union(set(labels_val))
     for smoother in smoothers:
-        weights = estimate_weights(texts_true, labels_true, smoother)
+        weights = estimate_weights(texts_train, labels_train, smoother)
         predictions = predict_all(texts_val, weights, label_set)
-        scores[smoother] = accuracy_score(labels_true, predictions)
+        scores[smoother] = accuracy_score(labels_train, predictions)
     return max(smoothers, key=lambda s: scores[s])
 
 
+# Loads, trains on, predicts, and scores on the training data.
+# TODO add more measures of classifier quality, add validation split
 def run_test():
     instances, labels = read_data('../data/Tweets.csv')
     bows = list(map(bag_of_words, map(sanitize, instances)))
@@ -71,4 +78,6 @@ def run_test():
     prediction_labels = [p[0] for p in predictions]
     print(accuracy_score(labels, prediction_labels))
 
-run_test()
+
+if __name__ == "__main__":
+    run_test()
