@@ -61,11 +61,11 @@ def estimate_weights(bows, labels, smoothing):
 def find_best_smoother(texts_train, labels_train, texts_val, labels_val,
                        smoothers):
     scores = {}
-    label_set = set(labels_train).union(set(labels_val))
+    label_set = list(set(labels_train).union(set(labels_val)))
     for smoother in smoothers:
         weights = estimate_weights(texts_train, labels_train, smoother)
-        predictions = predict_all(texts_val, weights, label_set)
-        scores[smoother] = accuracy_score(labels_train, predictions)
+        predictions = [p[0] for p in predict_all(texts_val, weights, label_set)]
+        scores[smoother] = accuracy_score(labels_val, predictions)
     return max(smoothers, key=lambda s: scores[s])
 
 
@@ -84,7 +84,7 @@ def run_test():
     bows_test, labels_test = bows[10000:], labels[10000:]
 
     # learning weights on train set
-    weights = estimate_weights(bows_tr, labels_tr, 0.001)
+    weights = estimate_weights(bows_tr, labels_tr, 0.5)
 
     # evaluating classification accuracy using learned weights on the test set
     predictions = predict_all(bows_test, weights, list(set(labels)))
