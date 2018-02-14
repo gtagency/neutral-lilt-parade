@@ -23,6 +23,9 @@ def predict(bow, weights, labels):
     #     best_score = scores[label]
     return best_label, best_score
 
+def predict_all(bows, weights, labels):
+    return [predict(bow, weights, labels) for bow in bows]
+
 
 # Example prediction:
 #     Service was bad. (negative)

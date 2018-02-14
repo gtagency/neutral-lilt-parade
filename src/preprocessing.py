@@ -16,3 +16,8 @@ def read_data(filename, instance='text', label='airline_sentiment'):
     instances = df[instance].values
     return (instances, labels)
 
+def sanitize_all(texts):
+    return [sanitize(text) for text in texts]
+
+def bag_of_words_all(texts):
+    return [bag_of_words(text) for text in texts]
