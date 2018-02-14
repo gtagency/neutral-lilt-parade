@@ -1,8 +1,8 @@
 from collections import Counter, defaultdict
 from math import log
-from linear import predict_all
+from linear import predict_all, predict
 from sklearn.metrics import accuracy_score
-from preprocessing import read_data, bag_of_words, sanitize
+from preprocessing import read_data, bag_of_words, sanitize, bag_of_words_all
 
 
 def get_vocabulary(texts):
@@ -12,37 +12,37 @@ def get_vocabulary(texts):
     return vocab
 
 
-def get_label_word_counts(texts, labels, label):
+def get_label_word_counts(bows, labels, label):
     counter = Counter()
-    for x, y in zip(texts, labels):
+    for x, y in zip(bows, labels):
         if y == label:
             counter.update(x)
     return defaultdict(float, counter)
 
 
-def estimate_prob_words_given_label(texts, labels, label, smoothing, vocab):
+def estimate_prob_words_given_label(bows, labels, label, smoothing, vocab):
     # P(w | L) = P(w AND L) / P(L)
     conditional_probs = defaultdict(float)
 
-    label_word_counts = get_label_word_counts(texts, labels, label)
+    label_word_counts = get_label_word_counts(bows, labels, label)
     label_count = sum(label_word_counts.values()) + len(vocab) * smoothing
     for word in vocab:
         word_count = label_word_counts[word]
-        conditional_probs[word] = (word_count + smoothing) / label_count
+        conditional_probs[word] = log((word_count + smoothing) / label_count)
     return conditional_probs
 
 
-def estimate_weights(texts, labels, smoothing):
+def estimate_weights(bows, labels, smoothing):
     weights = defaultdict(lambda: defaultdict(float))
 
     label_set = set(labels)
     label_counts = Counter(labels)
 
-    vocab = get_vocabulary(texts)
+    vocab = get_vocabulary(bows)
 
     for label in label_set:
         prob_words_given_label = estimate_prob_words_given_label(
-            texts, labels, label, smoothing, vocab
+            bows, labels, label, smoothing, vocab
         )
         for word in prob_words_given_label:
             weights[label][word] = prob_words_given_label[word]
@@ -65,11 +65,10 @@ def find_best_smoother(texts_true, labels_true,
 
 def run_test():
     instances, labels = read_data('../data/Tweets.csv')
-    weights = estimate_weights(instances, labels, 0.01)
-    predictions = predict_all(list(map(bag_of_words, instances)),
-                              weights, list(set(labels)))
+    bows = list(map(bag_of_words, map(sanitize, instances)))
+    weights = estimate_weights(bows, labels, 0.001)
+    predictions = predict_all(bows, weights, list(set(labels)))
     prediction_labels = [p[0] for p in predictions]
     print(accuracy_score(labels, prediction_labels))
-
 
 run_test()
