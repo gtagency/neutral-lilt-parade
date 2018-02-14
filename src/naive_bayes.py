@@ -1,8 +1,9 @@
 from collections import Counter, defaultdict
 from math import log
 from linear import predict_all, predict
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 from preprocessing import read_data, bag_of_words, sanitize, bag_of_words_all
+from random import shuffle
 
 
 # Gets the set of all words which appear in a collection of BOWs
@@ -71,12 +72,26 @@ def find_best_smoother(texts_train, labels_train, texts_val, labels_val,
 # Loads, trains on, predicts, and scores on the training data.
 # TODO add more measures of classifier quality, add validation split
 def run_test():
+    # loading and shuffling data and splitting into train/test sets
     instances, labels = read_data('../data/Tweets.csv')
+
+    paired = list(zip(instances, labels))
+    shuffle(paired)
+    instances, labels = zip(*paired)
+    
     bows = list(map(bag_of_words, map(sanitize, instances)))
-    weights = estimate_weights(bows, labels, 0.001)
-    predictions = predict_all(bows, weights, list(set(labels)))
+    bows_tr, labels_tr = bows[:10000], labels[:10000]
+    bows_test, labels_test = bows[10000:], labels[10000:]
+
+    # learning weights on train set
+    weights = estimate_weights(bows_tr, labels_tr, 0.001)
+
+    # evaluating classification accuracy using learned weights on the test set
+    predictions = predict_all(bows_test, weights, list(set(labels)))
     prediction_labels = [p[0] for p in predictions]
-    print(accuracy_score(labels, prediction_labels))
+    print('Accuracy:', accuracy_score(labels_test, prediction_labels))
+    print(classification_report(labels_test, prediction_labels))
+        
 
 
 if __name__ == "__main__":
