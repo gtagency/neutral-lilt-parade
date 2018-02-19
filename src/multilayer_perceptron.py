@@ -183,9 +183,9 @@ def run_test():
 
     bows = list(map(bag_of_words, map(sanitize, instances)))
 
-    bows, instance_forward_mapping, instance_reverse_mapping = bows_to_numpy(
+    bows, _, _ = bows_to_numpy(
         bows)
-    labels, label_forward_mapping, label_reverse_mapping = labels_to_numpy(
+    labels, _, _ = labels_to_numpy(
         labels)
 
     train_size = 1000

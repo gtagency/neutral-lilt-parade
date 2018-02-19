@@ -43,7 +43,6 @@ def estimate_weights(bows, labels, smoothing):
     weights = defaultdict(lambda: defaultdict(float))
 
     label_set = set(labels)
-    label_counts = Counter(labels)
 
     vocab = get_vocabulary(bows)
 
