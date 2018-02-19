@@ -22,7 +22,7 @@ def perceptron_update(bow, label, weights, labels):
 def estimate_weights(bows, labels, n_iterations, learning_rate=0.01):
     label_set = list(set(labels))
     weights = defaultdict(lambda: defaultdict(float))
-    for i in range(n_iterations):
+    for _ in range(n_iterations):
         # run the perceptron update for each instance and update the 
         # weights accordingly
         for bow, label in zip(bows, labels):
@@ -51,9 +51,9 @@ def run_test():
 
     # evaluating classification accuracy using learned weights on the test set
     predictions = predict_all(bows_test, weights, list(set(labels)))
-    prediction_labels = [p[0] for p in predictions]
-    print('Accuracy:', accuracy_score(labels_test, prediction_labels))
-    print(classification_report(labels_test, prediction_labels))
+    labels_prediction = [p[0] for p in predictions]
+    print('Accuracy:', accuracy_score(labels_test, labels_prediction))
+    print(classification_report(labels_test, labels_prediction))
 
 
 if __name__ == "__main__":
