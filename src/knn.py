@@ -44,7 +44,6 @@ def run_test():
         labels[train_size:train_size + test_size]
 
     # learning weights on train set
-    predict(bows_test[0], bows_tr, labels_tr)
     predictions = list(
         map(lambda x: predict(x, bows_tr, labels_tr), bows_test))
 
