@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from collections import Counter, defaultdict
 from math import log
 from linear import predict_all, predict
@@ -63,7 +65,8 @@ def find_best_smoother(texts_train, labels_train, texts_val, labels_val,
     label_set = list(set(labels_train).union(set(labels_val)))
     for smoother in smoothers:
         weights = estimate_weights(texts_train, labels_train, smoother)
-        predictions = [p[0] for p in predict_all(texts_val, weights, label_set)]
+        predictions = [p[0]
+                       for p in predict_all(texts_val, weights, label_set)]
         scores[smoother] = accuracy_score(labels_val, predictions)
     return max(smoothers, key=lambda s: scores[s])
 
@@ -77,7 +80,7 @@ def run_test():
     paired = list(zip(instances, labels))
     shuffle(paired)
     instances, labels = zip(*paired)
-    
+
     bows = list(map(bag_of_words, map(sanitize, instances)))
     bows_tr, labels_tr = bows[:10000], labels[:10000]
     bows_test, labels_test = bows[10000:], labels[10000:]
@@ -90,7 +93,6 @@ def run_test():
     prediction_labels = [p[0] for p in predictions]
     print('Accuracy:', accuracy_score(labels_test, prediction_labels))
     print(classification_report(labels_test, prediction_labels))
-        
 
 
 if __name__ == "__main__":
