@@ -1,4 +1,6 @@
-from preprocessing import read_data, bag_of_words, sanitize
+from __future__ import print_function
+
+from preprocessing import read_data, bag_of_words, sanitize, bows_to_numpy, labels_to_numpy
 from random import shuffle
 from sklearn.metrics import accuracy_score, classification_report
 import numpy as np
@@ -22,44 +24,6 @@ def predict(instance, instances_train, labels_train, k=3, dist=euclidean):
     return np.argmax(np.sum(nearest_labels, axis=0))
 
 
-def bows_to_numpy(bows):
-    vocab = set()
-    for text in bows:
-        vocab.update(text)
-
-    forward_mapping = {}
-    reverse_mapping = {}
-    for i, word in enumerate(vocab):
-        forward_mapping[word] = i
-        reverse_mapping[i] = word
-
-    instance_len = len(vocab)
-    num_instances = len(bows)
-    result = np.zeros((num_instances, instance_len))
-
-    for i, bow in enumerate(bows):
-        for word in bow:
-            result[i][forward_mapping[word]] = bow[word]
-
-    return result, forward_mapping, reverse_mapping
-
-
-def labels_to_numpy(labels):
-    label_set = set(labels)
-
-    forward_mapping = {}
-    reverse_mapping = {}
-    for i, word in enumerate(label_set):
-        forward_mapping[word] = i
-        reverse_mapping[i] = word
-
-    result = np.zeros((len(labels), len(label_set)))
-    for i, label in enumerate(labels):
-        result[i][forward_mapping[label]] = 1
-
-    return result, forward_mapping, reverse_mapping
-
-
 def run_test():
     # loading and shuffling data and splitting into train/test sets
     instances, labels = read_data('../data/Tweets.csv')
@@ -70,8 +34,8 @@ def run_test():
 
     bows = list(map(bag_of_words, map(sanitize, instances)))
 
-    bows, _, bows_reverse = bows_to_numpy(bows)
-    labels, _, labels_reverse = labels_to_numpy(labels)
+    bows, _, _ = bows_to_numpy(bows)
+    labels, _, _ = labels_to_numpy(labels)
 
     train_size = 10000
     test_size = 100
