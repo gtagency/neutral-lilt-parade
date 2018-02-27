@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from collections import defaultdict
 from linear import predict, predict_all
 from preprocessing import read_data, bag_of_words, sanitize

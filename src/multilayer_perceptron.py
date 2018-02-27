@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 from random import shuffle
 from preprocessing import read_data, bag_of_words, sanitize
