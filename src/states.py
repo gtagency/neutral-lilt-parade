@@ -1,7 +1,7 @@
 from random import randint
 
 def run(statements, samples=10, prev=1):
-	validletters = '1234567890abcdefghijklmnopqrstuvwxyz,. \n:?'
+	validletters = '1234567890abcdefghijklmnopqrstuvwxyz,.# \n:?'
 	statements = ["$ "*prev + ("".join([letter for letter in statement.lower() if letter in validletters])) + " /" for statement in statements]
 	originals = [s[2*prev:-2] for s in statements]
 	statement = statement
